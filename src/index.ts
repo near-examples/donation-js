@@ -4,10 +4,13 @@ import { Donation, STORAGE_COST } from './model'
 
 @NearBindgen
 class HelloNear extends NearContract {
-    constructor({ beneficiary = "v1.faucet.nonofficial.testnet" }) {
+    beneficiary: string;
+    donations: UnorderedMap<string, Donation>;
+    
+    constructor({ beneficiary = "v1.faucet.nonofficial.testnet" }: { beneficiary: string }) {
         super()
         this.beneficiary = beneficiary;
-        this.donations = new UnorderedMap('map-uid-1');
+        this.donations = new UnorderedMap<string, Donation>('map-uid-1');
     }
 
     deserialize() {
@@ -21,13 +24,13 @@ class HelloNear extends NearContract {
     donate() {
         // Get who is calling the method and how much $NEAR they attached
         let donor = near.predecessorAccountId(); 
-        let donationAmount = near.attachedDeposit();
+        let donationAmount = near.attachedDeposit().valueOf();
 
-        let donatedSoFar = BigInt(this.donations.get(donor) || 0)
+        let donatedSoFar = BigInt(this.donations.get(donor) || 0);
         let toTransfer = donationAmount;
- 
+        
         // This is the user's first donation, lets register it, which increases storage
-        if(donatedSoFar == 0) {
+        if (donatedSoFar.toString() === "0") {
             assert(donationAmount > STORAGE_COST, `Attach at least ${STORAGE_COST} yoctoNEAR`);
 
             // Subtract the storage cost to the amount to transfer
@@ -48,24 +51,25 @@ class HelloNear extends NearContract {
     }
 
     @call
-    change_beneficiary(beneficiary) {
+    change_beneficiary({ beneficiary }: { beneficiary: string }) {
         make_private();
         this.beneficiary = beneficiary;
     }
 
     @view
-    get_beneficiary(){ return this.beneficiary }
+    get_beneficiary(): string { return this.beneficiary }
 
     @view
-    total_donations() { return this.donations.len() }
+    total_donations(): number { return this.donations.len() }
 
     @view
-    get_donations({from_index = 0, limit}) {
-        let start = from_index
+    get_donations({from_index = 0, limit = 50 }: { from_index: number, limit: number }): Donation[] {
+        // Paginate through the donations using the from_index and limit parameters
+        return this.donations.toArray().slice(from_index, from_index + limit);
     }
 
     @view
-    get_donation_for_account({account_id}){
+    get_donation_for_account({ account_id }: { account_id: string }): Donation {
         return new Donation({
             account_id: account_id,
             total_amount: this.donations.get(account_id)
