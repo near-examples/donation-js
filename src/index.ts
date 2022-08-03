@@ -2,6 +2,8 @@ import { NearContract, NearBindgen, near, call, view, UnorderedMap, Vector } fro
 import { assert, make_private } from './utils'
 import { Donation, STORAGE_COST } from './model'
 
+const PREFIX = "p"
+
 @NearBindgen
 class HelloNear extends NearContract {
     beneficiary: string;
@@ -10,14 +12,14 @@ class HelloNear extends NearContract {
     constructor({ beneficiary = "v1.faucet.nonofficial.testnet" }: { beneficiary: string }) {
         super()
         this.beneficiary = beneficiary;
-        this.donations = new UnorderedMap<string, Donation>('map-uid-1');
+        this.donations = new UnorderedMap<string, Donation>(PREFIX);
     }
 
     deserialize() {
         super.deserialize()
-        this.donations.keys = Object.assign(new Vector, this.donations.keys)
-        this.donations.values = Object.assign(new Vector, this.donations.values)
-        this.donations = Object.assign(new UnorderedMap, this.donations)
+        this.donations.keys = Object.assign(new Vector(PREFIX + 'k'), this.donations.keys)
+        this.donations.values = Object.assign(new Vector(PREFIX + 'v'), this.donations.values)
+        this.donations = Object.assign(new UnorderedMap(PREFIX), this.donations)
     }
 
     @call
@@ -26,7 +28,8 @@ class HelloNear extends NearContract {
         let donor = near.predecessorAccountId(); 
         let donationAmount = near.attachedDeposit().valueOf();
 
-        let donatedSoFar = BigInt(this.donations.get(donor) || 0);
+        let currentDonation: Donation = this.donations.get(donor) || new Donation({ account_id: donor, total_amount: BigInt(0) });
+        let donatedSoFar = currentDonation.total_amount;
         let toTransfer = donationAmount;
         
         // This is the user's first donation, lets register it, which increases storage
@@ -39,7 +42,8 @@ class HelloNear extends NearContract {
 
         // Persist in storage the amount donated so far
         donatedSoFar += donationAmount;
-        this.donations.set(donor, donatedSoFar.toString())
+        currentDonation.total_amount = donatedSoFar;
+        this.donations.set(donor, currentDonation);
         near.log(`Thank you ${donor} for donating ${donationAmount}! You donated a total of ${donatedSoFar}`);
 
         // Send the money to the beneficiary (TODO)
@@ -64,15 +68,22 @@ class HelloNear extends NearContract {
 
     @view
     get_donations({from_index = 0, limit = 50 }: { from_index: number, limit: number }): Donation[] {
-        // Paginate through the donations using the from_index and limit parameters
-        return this.donations.toArray().slice(from_index, from_index + limit);
+        // Loop through the donations and return the ones that are in the range
+        let donationsArray = this.donations.toArray();
+        let actualLimit = Math.min(limit, donationsArray.length - from_index);
+        let donations = [];
+        for (let i = from_index; i < actualLimit; i++) {
+            donations.push(donationsArray[i][1]);
+        }
+
+        return donations
     }
 
     @view
     get_donation_for_account({ account_id }: { account_id: string }): Donation {
         return new Donation({
             account_id: account_id,
-            total_amount: this.donations.get(account_id)
+            total_amount: this.donations.get(account_id).total_amount || BigInt(0)
         })
     }
 }

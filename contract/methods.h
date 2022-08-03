@@ -1,0 +1,7 @@
+DEFINE_NEAR_METHOD(change_beneficiary)
+DEFINE_NEAR_METHOD(donate)
+DEFINE_NEAR_METHOD(get_beneficiary)
+DEFINE_NEAR_METHOD(get_donation_for_account)
+DEFINE_NEAR_METHOD(get_donations)
+DEFINE_NEAR_METHOD(init)
+DEFINE_NEAR_METHOD(total_donations)
