@@ -30,7 +30,7 @@ class DonationContract {
     }
 
     // Persist in storage the amount donated so far
-    donatedSoFar += donationAmount
+    donatedSoFar += toTransfer
     this.donations.set(donor, donatedSoFar.toString())
     near.log(`Thank you ${donor} for donating ${donationAmount}! You donated a total of ${donatedSoFar}`);
 
