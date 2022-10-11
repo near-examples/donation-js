@@ -16,4 +16,5 @@ jobs:
       - name: Deploy
         run: printf 'y\n' | yarn deploy
       - name: Start
-        run: yarn start && sleep 5 && kill $!
+        timeout-minutes: 1
+        run: yarn start
