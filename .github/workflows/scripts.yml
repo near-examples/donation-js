@@ -1,7 +1,7 @@
-name: Tests
+name: Package Scripts
 on: push
 jobs:
-  workflows:
+  scripts:
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest]
