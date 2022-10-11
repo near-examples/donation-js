@@ -14,6 +14,6 @@ jobs:
       - name: Install modules
         run: yarn
       - name: Deploy
-        run: yarn deploy
+        run: printf 'y\n' | yarn deploy
       - name: Start
         run: yarn start
