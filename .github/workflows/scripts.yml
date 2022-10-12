@@ -16,7 +16,7 @@ jobs:
       - name: Deploy
         run: printf 'y\n' | yarn deploy
       - name: Start
-        run: bash ../scripts/runfe.sh
+        run: bash .github/scripts/runfe.sh
   scripts-mac:
     strategy:
       matrix:
@@ -34,4 +34,4 @@ jobs:
       - name: Install timeout
         run: brew install coreutils
       - name: Start
-        run: bash ../scripts/runfe.sh
+        run: bash .github/scripts/runfe.sh
