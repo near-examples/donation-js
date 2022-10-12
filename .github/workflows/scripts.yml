@@ -4,7 +4,7 @@ jobs:
   scripts:
     strategy:
       matrix:
-        platform: [ubuntu-latest, macos-latest]
+        platform: [ubuntu-latest, macos-latest, ubuntu-22.04]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
@@ -16,5 +16,4 @@ jobs:
       - name: Deploy
         run: printf 'y\n' | yarn deploy
       - name: Start
-        timeout-minutes: 1
-        run: yarn start
+        run: timeout 30 yarn start
