@@ -50,7 +50,7 @@ context("Main Page", () => {
         cy.get("button").contains("Approve").click();
         // Wait for new page to load
         cy.wait(20000);
-        // should display the donating account among the list of donations
-        cy.get("td").contains(ACCOUNT_ID);
+        // should display the donating account name on page
+        cy.contains(ACCOUNT_ID);
     });
 });
