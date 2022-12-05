@@ -8,6 +8,7 @@ module.exports = defineConfig({
     chromeWebSecurity: false,
     env: {
       seed: "give laugh youth nice fossil common neutral since best biology swift unhappy",
+      accountId: "cypress-guest-book.testnet",
     },
   },
 });

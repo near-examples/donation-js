@@ -1,4 +1,5 @@
 const SEED = Cypress.env('seed')
+const ACCOUNT_ID = Cypress.env('accountId')
 
 context("Main Page", () => {
     beforeEach(() => {
@@ -21,7 +22,7 @@ context("Main Page", () => {
         // Select element from left modal list titled: "MyNearWallet" and click on it
         cy.get("div").contains("MyNearWallet").click();
         // Wait for new page to load
-        cy.wait(5000);
+        cy.wait(20000);
         // Click on the "Import Existing Account" button
         cy.get("button").contains("Import Existing Account").click();
         // Click on the "Recover Account" button
@@ -31,23 +32,25 @@ context("Main Page", () => {
         // Click on the "Find My Account" button
         cy.get("button").contains("Find My Account").click();
         // Wait for new page to load
-        cy.wait(10000);
+        cy.wait(20000);
         // Click on the "Next" button
         cy.get("button").contains("Next").click();
         // Click on the "Connect" button
         cy.get("button").contains("Connect").click();
         // Wait for new page to load
-        cy.wait(10000);
+        cy.wait(20000);
 
-        // should be able to enter the amount to donate
-        cy.get("input#donation").type("10");
+        // should be able to enter the amount to donate in input field with id: "donation"
+        cy.get("input[id=donation]").type("10");
         // should be able to click the donate button
         cy.get("button").contains("Donate").click();
+        // Wait for new page to load
+        cy.wait(20000);
         // should be able to click "Approve" to confirm the donation
         cy.get("button").contains("Approve").click();
-        // should display an on-screen notification that the donation was successful with message: "Thank you! You have donated so far:"
-        cy.get("div").contains("Thank you! You have donated so far:");
-        // should display the donation among the list of donations
-        cy.get("td").contains("10");
+        // Wait for new page to load
+        cy.wait(20000);
+        // should display the donating account among the list of donations
+        cy.get("td").contains(ACCOUNT_ID);
     });
 });
